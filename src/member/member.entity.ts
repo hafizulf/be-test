@@ -1,6 +1,9 @@
+import { IBookLoan } from "src/book-loan/book-loan.entity";
+
 export interface IMember {
   code: string;
   name: string;
+  bookLoans?: IBookLoan[];
 }
 
 export class MemberEntity  {
@@ -17,7 +20,8 @@ export class MemberEntity  {
   public unmarshal(): IMember {
     return {
       code: this.code,
-      name: this.name
+      name: this.name,
+      bookLoans: this.bookLoans,
     }
   }
 
@@ -27,5 +31,9 @@ export class MemberEntity  {
 
   public get name(): string {
     return this.props.name;
+  }
+
+  public get bookLoans(): IBookLoan[] {
+    return this.props.bookLoans;
   }
 }

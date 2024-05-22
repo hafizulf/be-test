@@ -20,39 +20,17 @@ export class MemberService {
     private prismaService: PrismaService,
   ) {}
 
-  async get():
-    Promise<IMember[]> {
-      return (
-        (await this.repository.get())
-          .map(member => member.unmarshal())
-      );
-    }
+  async getMemberBorrowBooks():
+    Promise<TotalBorrowedBookMemberResponse[]> {
+      const members = await this.repository.findMembersWithTotalBorrowedBooks();
 
-  async getTotalBorrowed(memberCode: string):
-    Promise<TotalBorrowedBookMemberResponse> {
-      const getTotalBorrowedSchema = this.validationService.validate(
-        MemberValidation.getTotalBorrowedSchema,
-        {
-          memberCode
-        },
-      );
-
-      const member = await this.repository.findMemberByCode(getTotalBorrowedSchema.memberCode);
-      const borrowedBooks: IBookLoan[] = await this.bookLoanRepository.getBorrowedBooks(member.code);
-
-      if(borrowedBooks.length === 0) {
+      return members.map(member => {
         return {
           code: member.code,
           name: member.name,
-          totalBorrowedBooks: 0
+          totalBorrowedBooks: member.bookLoans.length
         }
-      }
-
-      return {
-        code: member.code,
-        name: member.name,
-        totalBorrowedBooks: borrowedBooks.length
-      }
+      });
   }
 
   async borrowBook(

@@ -9,23 +9,14 @@ export class MemberRepository {
     private prismaService: PrismaService,
   ) {}
 
-  async get(): Promise<MemberEntity[]> {
-    const members = await this.prismaService.member.findMany();
-    return members.map(member => MemberEntity.create(member));
-  }
-
-  async findMemberByCode(memberCode: string): Promise<MemberEntity> {
-    const member = await this.prismaService.member.findUnique({
-      where: {
-        code: memberCode
+  async findMembersWithTotalBorrowedBooks(): Promise<MemberEntity[]> {
+    const members = await this.prismaService.member.findMany({
+      include: {
+        bookLoans: true,
+        _count: true
       }
     });
-
-    if (!member) {
-      throw new NotFoundException('Member not found');
-    }
-
-    return MemberEntity.create(member);
+    return members.map(member => MemberEntity.create(member));
   }
 
   async findMemberNotPenalizeByCode(memberCode: string): Promise<MemberEntity> {
