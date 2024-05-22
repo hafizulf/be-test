@@ -8,7 +8,17 @@ export class BookService {
     private repository: BookRepository,
   ) {}
 
-  async getListAvailable(): Promise<IBook[]> {
-    return (await this.repository.getListAvailable()).map(book => book.unmarshal());
+  async getListAvailable():
+    Promise<IBook[]> {
+      return (
+        await this.repository.getListAvailable()
+      ).map(book => book.unmarshal());
+  }
+
+  async getListBooked():
+    Promise<IBook[]> {
+      return (
+        await this.repository.getListBooked()
+      ).map(book => book.unmarshal());
   }
 }
