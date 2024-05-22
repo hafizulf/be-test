@@ -19,6 +19,8 @@ model Book {
   author String @db.VarChar(100)
   stock Int
 
+  bookLoans BookLoan[] @relation("BookLoansToBook")
+
   @@map("books")
 }
 
@@ -26,5 +28,19 @@ model Member {
   code String @unique @db.VarChar(100)
   name String @db.VarChar(100)
 
+  bookLoans BookLoan[] @relation("BookLoansToMember")
+
   @@map("members")
+}
+
+model BookLoan {
+  id Int @id @default(autoincrement())
+  bookCode String @db.VarChar(100)
+  memberCode String @db.VarChar(100)
+  deleted_at DateTime? @db.Date()
+
+  book Book @relation(fields: [bookCode], references: [code], name: "BookLoansToBook")
+  member Member @relation(fields: [memberCode], references: [code], name: "BookLoansToMember")
+
+  @@map("book_loans")
 }
