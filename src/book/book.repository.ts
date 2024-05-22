@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../common/prisma.service";
 import { BookEntity } from "./book.entity";
 
@@ -36,5 +36,22 @@ export class BookRepository {
     })
 
     return books.map(book => BookEntity.create(book));
+  }
+
+  async findBookByCode(bookCode: string): Promise<BookEntity> {
+    const book = await this.prismaService.book.findUnique({
+      where: {
+        code: bookCode,
+        stock: {
+          gt: 0
+        }
+      }
+    })
+
+    if (!book) {
+      throw new NotFoundException('Book not found');
+    }
+
+    return BookEntity.create(book);
   }
 }

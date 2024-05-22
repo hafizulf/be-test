@@ -18,6 +18,7 @@ export class ErrorFilter implements ExceptionFilter {
       response.status(exception.getStatus()).json({
         errors: exception.getResponse(),
       });
+      return;
     } else {
       response.status(500).json({
         errors: exception.message,

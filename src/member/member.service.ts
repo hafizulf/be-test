@@ -3,9 +3,10 @@ import { MemberRepository } from './member.repository';
 import { IMember } from './member.entity';
 import { BookLoanRepository } from 'src/book-loan/book-loan.repository';
 import { IBookLoan } from 'src/book-loan/book-loan.entity';
-import { TotalBorrowedBookMemberResponse } from './member.model';
+import { CreateBorrowBookResponse, TotalBorrowedBookMemberResponse } from './member.model';
 import { ValidationService } from '../common/validation.service';
 import { MemberValidation } from './member.validation';
+import { BookRepository } from 'src/book/book.repository';
 
 @Injectable()
 export class MemberService {
@@ -13,6 +14,7 @@ export class MemberService {
     private repository: MemberRepository,
     private validationService: ValidationService,
     private bookLoanRepository: BookLoanRepository,
+    private bookRepository: BookRepository,
   ) {}
 
   async get():
@@ -48,5 +50,31 @@ export class MemberService {
         name: member.name,
         totalBorrowedBooks: borrowedBooks.length
       }
+  }
+
+  async borrowBook(
+    memberCode: string,
+    bookCodes: string[],
+  ): Promise<CreateBorrowBookResponse> {
+    const borrowBookSchema = this.validationService.validate(
+      MemberValidation.borrowBookSchema,
+      {
+        memberCode,
+        bookCodes,
+      },
+    );
+
+    await this.repository.findMemberByCode(borrowBookSchema.memberCode);
+    await Promise.all(
+      bookCodes.map(async (bookCode) => {
+        await this.bookRepository.findBookByCode(bookCode);
+      })
+    );
+
+    await this.bookLoanRepository.bookingBooks(memberCode, bookCodes);
+    return {
+      memberCode,
+      bookCodes,
+    }
   }
 }

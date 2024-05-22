@@ -12,4 +12,24 @@ export class MemberValidation {
       message: 'Member code is required',
     })
   })
+
+  static readonly borrowBookSchema = this.getTotalBorrowedSchema.merge(z.object({
+    bookCodes: z.array(z.string()).superRefine((bookCodes, ctx) => {
+      if (bookCodes.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'At least one book code must be provided.'
+        });
+      }
+
+      if (bookCodes.length > 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'No more than two book codes can be provided.'
+        });
+      }
+
+      return true;
+    }),
+  }))
 }
