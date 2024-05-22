@@ -52,7 +52,7 @@ export class BookLoanRepository {
     const borrowedBooks = await this.prismaService.bookLoan.createManyAndReturn({
       data: bookCodes.map(bookCode => ({
         bookCode,
-        memberCode
+        memberCode,
       }))
     });
 
