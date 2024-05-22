@@ -37,6 +37,8 @@ model BookLoan {
   id Int @id @default(autoincrement())
   bookCode String @db.VarChar(100)
   memberCode String @db.VarChar(100)
+  loan_date DateTime? @db.Date()
+  return_date DateTime? @db.Date()
   deleted_at DateTime? @db.Date()
 
   book Book @relation(fields: [bookCode], references: [code], name: "BookLoansToBook")

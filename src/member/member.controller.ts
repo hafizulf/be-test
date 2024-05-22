@@ -1,7 +1,7 @@
-import { Controller, Get, HttpCode } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { WebResponse } from 'src/common/web.model';
-import { MemberResponse } from './member.model';
+import { MemberResponse, TotalBorrowedBookMemberResponse } from './member.model';
 
 @Controller('/api/members')
 export class MemberController {
@@ -18,6 +18,19 @@ export class MemberController {
       status: 200,
       message: 'Members fetched successfully',
       data: members,
+    }
+  }
+
+  @HttpCode(200)
+  @Get('/borrowed/:memberCode')
+  async getMemberBorrowBooks(
+    @Param('memberCode') memberCode: string
+  ): Promise<WebResponse<TotalBorrowedBookMemberResponse>> {
+    const data = await this.service.getTotalBorrowed(memberCode);
+    return {
+      status: 200,
+      message: 'Member borrowed book fetched successfully',
+      data,
     }
   }
 }
