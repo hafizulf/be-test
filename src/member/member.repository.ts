@@ -12,8 +12,11 @@ export class MemberRepository {
   async findMembersWithTotalBorrowedBooks(): Promise<MemberEntity[]> {
     const members = await this.prismaService.member.findMany({
       include: {
-        bookLoans: true,
-        _count: true
+        bookLoans: {
+          where: {
+            return_date: null
+          },
+        }
       }
     });
     return members.map(member => MemberEntity.create(member));
@@ -37,6 +40,15 @@ export class MemberRepository {
       throw new BadRequestException(
         'Member cannot borrow book because member is penalized'
       );
+    } else {
+      await this.prismaService.member.update({
+        where: {
+          code: memberCode
+        },
+        data: {
+          penalized_at: null
+        }
+      })
     }
 
     return MemberEntity.create(member);
