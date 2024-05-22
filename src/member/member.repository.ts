@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../common/prisma.service";
 import { MemberEntity } from "./member.entity";
+import * as moment from 'moment';
 
 @Injectable()
 export class MemberRepository {
@@ -38,7 +39,10 @@ export class MemberRepository {
       throw new NotFoundException('Member not found');
     }
 
-    if(member.penalized_at !== null) {
+    if(
+      member.penalized_at &&
+      moment(member.penalized_at).add(3, 'days') >= moment()
+    ) {
       throw new BadRequestException(
         'Member cannot borrow book because member is penalized'
       );

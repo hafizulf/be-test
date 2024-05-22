@@ -107,7 +107,6 @@ export class MemberService {
       const loanDatePlusSevenDays = moment(bookLoan.loan_date).add(7, 'days');
 
       if(today.isAfter(loanDatePlusSevenDays)) {
-        console.log("penalize");
         await this.repository.penalizeMember(bookLoan.memberCode);
       }
 
