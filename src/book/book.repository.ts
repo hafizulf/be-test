@@ -23,21 +23,6 @@ export class BookRepository {
     return books.map(book => BookEntity.create(book));
   }
 
-  async getListBooked(): Promise<BookEntity[]> {
-    const books = await this.prismaService.book.findMany({
-      where: {
-        stock: {
-          lt: 1
-        }
-      },
-      orderBy: {
-        title: 'asc'
-      }
-    })
-
-    return books.map(book => BookEntity.create(book));
-  }
-
   async findBookByCode(bookCode: string): Promise<BookEntity> {
     const book = await this.prismaService.book.findUnique({
       where: {

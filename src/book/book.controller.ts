@@ -20,16 +20,4 @@ export class BookController {
       data: books,
     };
   }
-
-  @Get('/borrowed')
-  @HttpCode(200)
-  async getListBooked():
-    Promise<WebResponse<BookResponse[]>> {
-    const books = await this.service.getListBooked();
-    return {
-      status: HttpStatus.OK,
-      message: 'Books fetched successfully',
-      data: books,
-    };
-  }
 }
