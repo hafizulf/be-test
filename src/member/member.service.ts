@@ -6,7 +6,8 @@ import { IBookLoan } from 'src/book-loan/book-loan.entity';
 import { CreateBorrowBookResponse, TotalBorrowedBookMemberResponse } from './member.model';
 import { ValidationService } from '../common/validation.service';
 import { MemberValidation } from './member.validation';
-import { BookRepository } from 'src/book/book.repository';
+import { BookRepository } from '../book/book.repository';
+import { PrismaService } from '../common/prisma.service';
 
 @Injectable()
 export class MemberService {
@@ -15,6 +16,7 @@ export class MemberService {
     private validationService: ValidationService,
     private bookLoanRepository: BookLoanRepository,
     private bookRepository: BookRepository,
+    private prismaService: PrismaService,
   ) {}
 
   async get():
@@ -64,17 +66,20 @@ export class MemberService {
       },
     );
 
-    await this.repository.findMemberByCode(borrowBookSchema.memberCode);
-    await Promise.all(
-      bookCodes.map(async (bookCode) => {
-        await this.bookRepository.findBookByCode(bookCode);
-      })
-    );
+    return await this.prismaService.$transaction(async () => { // db transaction
+      await this.repository.findMemberNotPenalizeByCode(borrowBookSchema.memberCode);
+      await Promise.all(
+        bookCodes.map(async (bookCode) => {
+          await this.bookRepository.findBookByCode(bookCode);
+        })
+      );
+      await this.bookLoanRepository.bookingBooks(memberCode, bookCodes);
+      await this.bookRepository.updateStock(bookCodes);
 
-    await this.bookLoanRepository.bookingBooks(memberCode, bookCodes);
-    return {
-      memberCode,
-      bookCodes,
-    }
+      return {
+        memberCode,
+        bookCodes,
+      };
+    });
   }
 }

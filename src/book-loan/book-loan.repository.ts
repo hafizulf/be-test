@@ -21,15 +21,32 @@ export class BookLoanRepository {
     memberCode: string,
     bookCodes: string[],
   ): Promise<BookLoanEntity[]> {
-    const isBorrowed = await this.prismaService.bookLoan.findMany({
+    const totalBorrowedBy = await this.prismaService.bookLoan.findMany({
       where: {
         memberCode,
         return_date: null, // book is not returned yet
       }
     })
 
-    if(isBorrowed.length + bookCodes.length > 2) {
-      throw new BadRequestException('Member cannot borrow more than two books');
+    if(totalBorrowedBy.length + bookCodes.length > 2) {
+      throw new BadRequestException(
+        'Member cannot borrow more than two books'
+      );
+    }
+
+    const isBorrowedByOther = await this.prismaService.bookLoan.findMany({
+      where: {
+        return_date: null,
+        bookCode: {
+          in: bookCodes
+        }
+      }
+    })
+
+    if(isBorrowedByOther.length > 0) {
+      throw new BadRequestException(
+        'Book is already borrowed by other member'
+      );
     }
 
     const borrowedBooks = await this.prismaService.bookLoan.createManyAndReturn({

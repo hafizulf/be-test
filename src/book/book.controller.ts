@@ -21,7 +21,7 @@ export class BookController {
     };
   }
 
-  @Get('/booked')
+  @Get('/borrowed')
   @HttpCode(200)
   async getListBooked():
     Promise<WebResponse<BookResponse[]>> {

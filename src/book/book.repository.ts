@@ -54,4 +54,19 @@ export class BookRepository {
 
     return BookEntity.create(book);
   }
+
+  async updateStock(bookCodes: string[]): Promise<void> {
+    await this.prismaService.book.updateMany({
+      where: {
+        code: {
+          in: bookCodes
+        }
+      },
+      data: {
+        stock: {
+          decrement: 1
+        }
+      }
+    })
+  }
 }
