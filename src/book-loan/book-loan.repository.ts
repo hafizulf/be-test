@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/common/prisma.service";
 import { BookLoanEntity } from "./book-loan.entity";
 
@@ -57,5 +57,48 @@ export class BookLoanRepository {
     });
 
     return borrowedBooks.map(bookLoan => BookLoanEntity.create(bookLoan));
+  }
+
+  async findByIdsAndMemberCode(
+    memberCode: string,
+    ids: number[],
+  ): Promise<BookLoanEntity[]> {
+    const borrowedBooks = await this.prismaService.bookLoan.findMany({
+      where: {
+        memberCode,
+        id: {
+          in: ids
+        },
+        return_date: null, // book is not returned yet
+      }
+    });
+
+    if (borrowedBooks.length === 0) {
+      throw new NotFoundException(
+        'Book loaned not found'
+      );
+    }
+
+    return borrowedBooks.map(bookLoan => BookLoanEntity.create(bookLoan));
+  }
+
+  async returnBook(id: number): Promise<BookLoanEntity> {
+    const bookLoan = await this.prismaService.bookLoan.update({
+      where: {
+        id,
+        return_date: null, // book is not returned yet
+      },
+      data: {
+        return_date: new Date()
+      }
+    })
+
+    if (!bookLoan) {
+      throw new NotFoundException(
+        'Book loaned not found'
+      );
+    }
+
+    return BookLoanEntity.create(bookLoan);
   }
 }

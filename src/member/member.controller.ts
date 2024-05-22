@@ -1,7 +1,14 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { WebResponse } from 'src/common/web.model';
-import { CreateBorrowBookRequest, CreateBorrowBookResponse, MemberResponse, TotalBorrowedBookMemberResponse } from './member.model';
+import {
+  CreateBorrowBookRequest,
+  CreateBorrowBookResponse,
+  MemberResponse,
+  TotalBorrowedBookMemberResponse,
+  UpdateBorrowBookRequest,
+  UpdateBorrowBookResponse
+} from './member.model';
 
 @Controller('/api/members')
 export class MemberController {
@@ -22,7 +29,7 @@ export class MemberController {
   }
 
   @HttpCode(200)
-  @Get('/borrowed/:memberCode')
+  @Get('/borrow/:memberCode')
   async getMemberBorrowBooks(
     @Param('memberCode') memberCode: string
   ): Promise<WebResponse<TotalBorrowedBookMemberResponse>> {
@@ -45,6 +52,20 @@ export class MemberController {
     return {
       status: 200,
       message: 'Book borrowed successfully',
+      data,
+    }
+  }
+
+  @Put('/borrow/return/:memberCode')
+  async returnBook(
+    @Param('memberCode') memberCode: string,
+    @Body() body: UpdateBorrowBookRequest,
+  ): Promise<WebResponse<UpdateBorrowBookResponse>> {
+    const { bookIds } = body;
+    const data = await this.service.returnBook(memberCode, bookIds);
+    return {
+      status: 200,
+      message: 'Book returned successfully',
       data,
     }
   }

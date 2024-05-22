@@ -32,4 +32,17 @@ export class MemberValidation {
       return true;
     }),
   }))
+
+  static readonly returnBorrowBookSchema = this.getTotalBorrowedSchema.merge(z.object({
+    bookIds: z.array(z.number()).superRefine((bookIds, ctx) => {
+      if (bookIds.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'At least one book id must be provided.'
+        });
+      }
+
+      return true;
+    }),
+  }))
 }

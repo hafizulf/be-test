@@ -46,4 +46,18 @@ export class MemberRepository {
 
     return MemberEntity.create(member);
   }
+
+  async penalizeMember(
+    memberCode: string,
+  ): Promise<MemberEntity> {
+    const penalizeMember = await this.prismaService.member.update({
+      where: {
+        code: memberCode
+      },
+      data: {
+        penalized_at: new Date()
+      }
+    });
+    return MemberEntity.create(penalizeMember);
+  }
 }

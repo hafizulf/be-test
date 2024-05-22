@@ -16,3 +16,8 @@ export class CreateBorrowBookResponse {
   memberCode: string;
   bookCodes: string[];
 }
+
+export class UpdateBorrowBookRequest {
+  bookIds: number[];
+}
+export class UpdateBorrowBookResponse extends CreateBorrowBookResponse {}

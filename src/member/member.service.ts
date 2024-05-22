@@ -1,13 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MemberRepository } from './member.repository';
 import { IMember } from './member.entity';
 import { BookLoanRepository } from 'src/book-loan/book-loan.repository';
 import { IBookLoan } from 'src/book-loan/book-loan.entity';
-import { CreateBorrowBookResponse, TotalBorrowedBookMemberResponse } from './member.model';
+import { CreateBorrowBookResponse, TotalBorrowedBookMemberResponse, UpdateBorrowBookResponse } from './member.model';
 import { ValidationService } from '../common/validation.service';
 import { MemberValidation } from './member.validation';
 import { BookRepository } from '../book/book.repository';
 import { PrismaService } from '../common/prisma.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class MemberService {
@@ -74,12 +75,51 @@ export class MemberService {
         })
       );
       await this.bookLoanRepository.bookingBooks(memberCode, bookCodes);
-      await this.bookRepository.updateStock(bookCodes);
+      await this.bookRepository.decrementStock(bookCodes);
 
       return {
         memberCode,
         bookCodes,
       };
     });
+  }
+
+  async returnBook(
+    memberCode: string,
+    bookIds: number[],
+  ): Promise<UpdateBorrowBookResponse> {
+    const returnBookSchema = this.validationService.validate(
+      MemberValidation.returnBorrowBookSchema,
+      {
+        memberCode,
+        bookIds,
+      },
+    );
+
+    const bookLoans = await this.bookLoanRepository.findByIdsAndMemberCode(
+      returnBookSchema.memberCode,
+      returnBookSchema.bookIds
+    );
+
+    const returnedBooks: IBookLoan[] = [];
+    for (const bookLoan of bookLoans) {
+      const today = moment();
+      const loanDatePlusSevenDays = moment(bookLoan.loan_date).add(7, 'days');
+
+      if(today.isAfter(loanDatePlusSevenDays)) {
+        console.log("penalize");
+        await this.repository.penalizeMember(bookLoan.memberCode);
+      }
+
+      await this.bookRepository.incrementStock([bookLoan.bookCode]);
+      const returnedBook = await this.bookLoanRepository.returnBook(bookLoan.id);
+
+      returnedBooks.push(returnedBook);
+    }
+
+    return {
+      memberCode,
+      bookCodes: returnedBooks.map(book => book.bookCode),
+    }
   }
 }
