@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../common/prisma.service";
-import { IBook, BookEntity } from "./book.entity";
+import { BookEntity } from "./book.entity";
 
 @Injectable()
 export class BookRepository {
@@ -8,7 +8,7 @@ export class BookRepository {
     private prismaService: PrismaService,
   ) {}
 
-  async getListAvailable(): Promise<IBook[]> {
+  async getListAvailable(): Promise<BookEntity[]> {
     const books = await this.prismaService.book.findMany({
       where: {
         stock: {

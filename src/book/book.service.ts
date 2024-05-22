@@ -9,6 +9,6 @@ export class BookService {
   ) {}
 
   async getListAvailable(): Promise<IBook[]> {
-    return (await this.repository.getListAvailable());
+    return (await this.repository.getListAvailable()).map(book => book.unmarshal());
   }
 }
