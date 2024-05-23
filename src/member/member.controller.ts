@@ -1,10 +1,9 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { MemberService } from './member.service';
-import { WebResponse } from 'src/common/web.model';
+import { WebResponse } from '../common/web.model';
 import {
   CreateBorrowBookRequest,
   CreateBorrowBookResponse,
-  MemberResponse,
   TotalBorrowedBookMemberResponse,
   UpdateBorrowBookRequest,
   UpdateBorrowBookResponse

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MemberRepository } from './member.repository';
-import { IMember } from './member.entity';
-import { BookLoanRepository } from 'src/book-loan/book-loan.repository';
-import { IBookLoan } from 'src/book-loan/book-loan.entity';
+import { BookLoanRepository } from '../book-loan/book-loan.repository';
+import { IBookLoan } from '../book-loan/book-loan.entity';
 import { CreateBorrowBookResponse, TotalBorrowedBookMemberResponse, UpdateBorrowBookResponse } from './member.model';
 import { ValidationService } from '../common/validation.service';
 import { MemberValidation } from './member.validation';
@@ -82,7 +81,7 @@ export class MemberService {
     const returnedBooks: IBookLoan[] = [];
     for (const bookLoan of bookLoans) {
       const today = moment();
-      const loanDatePlusSevenDays = moment(bookLoan.loan_date).add(7, 'days');
+      const loanDatePlusSevenDays = moment(bookLoan.loanDate).add(7, 'days');
 
       if(today.isAfter(loanDatePlusSevenDays)) {
         await this.repository.penalizeMember(bookLoan.memberCode);

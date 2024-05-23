@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/common/prisma.service";
+import { PrismaService } from "../common/prisma.service";
 import { BookLoanEntity } from "./book-loan.entity";
 
 @Injectable()
@@ -21,31 +21,30 @@ export class BookLoanRepository {
     memberCode: string,
     bookCodes: string[],
   ): Promise<BookLoanEntity[]> {
-    const totalBorrowedBy = await this.prismaService.bookLoan.findMany({
+    const isBorrowedByOther = await this.prismaService.bookLoan.findMany({
       where: {
-        memberCode,
-        return_date: null, // book is not returned yet
+        returnDate: null,
+        bookCode: {
+          in: bookCodes
+        }
+      }
+    });
+
+    if(isBorrowedByOther.length > 0) {
+      throw new BadRequestException(
+        'Book is already borrowed by other member'
+      );
+    }
+
+    const totalBorrowedBy = isBorrowedByOther.filter((book) => {
+      if(memberCode === book.memberCode && book.returnDate === null) {
+        return book
       }
     })
 
     if(totalBorrowedBy.length + bookCodes.length > 2) {
       throw new BadRequestException(
         'Member cannot borrow more than two books'
-      );
-    }
-
-    const isBorrowedByOther = await this.prismaService.bookLoan.findMany({
-      where: {
-        return_date: null,
-        bookCode: {
-          in: bookCodes
-        }
-      }
-    })
-
-    if(isBorrowedByOther.length > 0) {
-      throw new BadRequestException(
-        'Book is already borrowed by other member'
       );
     }
 
@@ -69,7 +68,7 @@ export class BookLoanRepository {
         id: {
           in: ids
         },
-        return_date: null, // book is not returned yet
+        returnDate: null, // book is not returned yet
       }
     });
 
@@ -86,10 +85,10 @@ export class BookLoanRepository {
     const bookLoan = await this.prismaService.bookLoan.update({
       where: {
         id,
-        return_date: null, // book is not returned yet
+        returnDate: null, // book is not returned yet
       },
       data: {
-        return_date: new Date()
+        returnDate: new Date()
       }
     })
 

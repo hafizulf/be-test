@@ -2,8 +2,8 @@ export interface IBookLoan {
   id?: number;
   bookCode: string;
   memberCode: string;
-  loan_date?: Date;
-  return_date?: Date;
+  loanDate?: Date;
+  returnDate?: Date;
   deletedAt?: Date;
 }
 
@@ -23,8 +23,8 @@ export class BookLoanEntity {
       id: this.id,
       bookCode: this.bookCode,
       memberCode: this.memberCode,
-      loan_date: this.loan_date,
-      return_date: this.return_date,
+      loanDate: this.loanDate,
+      returnDate: this.returnDate,
       deletedAt: this.deletedAt,
     }
   }
@@ -41,12 +41,12 @@ export class BookLoanEntity {
     return this.props.memberCode;
   }
 
-  get loan_date(): Date | undefined {
-    return this.props.loan_date;
+  get loanDate(): Date | undefined {
+    return this.props.loanDate;
   }
 
-  get return_date(): Date | undefined {
-    return this.props.return_date;
+  get returnDate(): Date | undefined {
+    return this.props.returnDate;
   }
 
   get deletedAt(): Date | undefined {

@@ -14,7 +14,7 @@ export class MemberRepository {
       include: {
         bookLoans: {
           where: {
-            return_date: null
+            returnDate: null
           },
         }
       }
@@ -34,8 +34,8 @@ export class MemberRepository {
     }
 
     if(
-      member.penalized_at &&
-      moment(member.penalized_at).add(3, 'days') >= moment()
+      member.penalizedAt &&
+      moment(member.penalizedAt).add(3, 'days') >= moment()
     ) {
       throw new BadRequestException(
         'Member cannot borrow book because member is penalized'
@@ -46,7 +46,7 @@ export class MemberRepository {
           code: memberCode
         },
         data: {
-          penalized_at: null
+          penalizedAt: null
         }
       })
     }
@@ -62,7 +62,7 @@ export class MemberRepository {
         code: memberCode
       },
       data: {
-        penalized_at: new Date()
+        penalizedAt: new Date()
       }
     });
     return MemberEntity.create(penalizeMember);
