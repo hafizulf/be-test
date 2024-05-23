@@ -57,14 +57,24 @@ export class MemberRepository {
   async penalizeMember(
     memberCode: string,
   ): Promise<MemberEntity> {
-    const penalizeMember = await this.prismaService.member.update({
+    const member = await this.prismaService.member.findUnique({
       where: {
         code: memberCode
+      }
+    })
+
+    if(!member) {
+      throw new NotFoundException('Member not found');
+    }
+
+    await this.prismaService.member.update({
+      where: {
+        code: member.code
       },
       data: {
         penalizedAt: new Date()
       }
     });
-    return MemberEntity.create(penalizeMember);
+    return MemberEntity.create(member);
   }
 }

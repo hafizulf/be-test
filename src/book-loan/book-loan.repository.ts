@@ -82,13 +82,10 @@ export class BookLoanRepository {
   }
 
   async returnBook(id: number): Promise<BookLoanEntity> {
-    const bookLoan = await this.prismaService.bookLoan.update({
+    const bookLoan = await this.prismaService.bookLoan.findUnique({
       where: {
         id,
         returnDate: null, // book is not returned yet
-      },
-      data: {
-        returnDate: new Date()
       }
     })
 
@@ -97,6 +94,15 @@ export class BookLoanRepository {
         'Book loaned not found'
       );
     }
+
+    await this.prismaService.bookLoan.update({
+      where: {
+        id,
+      },
+      data: {
+        returnDate: new Date()
+      }
+    })
 
     return BookLoanEntity.create(bookLoan);
   }

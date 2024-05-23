@@ -87,8 +87,8 @@ export class MemberService {
         await this.repository.penalizeMember(bookLoan.memberCode);
       }
 
-      await this.bookRepository.incrementStock([bookLoan.bookCode]);
       const returnedBook = await this.bookLoanRepository.returnBook(bookLoan.id);
+      await this.bookRepository.incrementStock([bookLoan.bookCode]);
 
       returnedBooks.push(returnedBook);
     }
